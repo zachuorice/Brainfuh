@@ -1,0 +1,22 @@
+<project name="Brainfuh" default="build" basedir=".">
+    <description>
+        A Brainf*** interpreter coded in Java.
+    </description>
+    <property name="src" location="src" />
+    <property name="build" location="build" />
+    <property name="libfile" value="libbrainfuh.jar" />
+    <property name="exefile" value="brainfuh.jar" />
+
+    <target name="init">
+        <tstamp/>
+        <mkdir dir="${build}" />
+    </target>
+
+    <target name="build" depends="init"
+        description="Compile source into ${libfile} and %{exefile} in ${build}.">
+    </target>
+
+    <target name="clean">
+        <delete dir="${build}" />
+    </target>
+</project>
