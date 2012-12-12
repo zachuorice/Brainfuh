@@ -4,16 +4,33 @@
     </description>
     <property name="src" location="src" />
     <property name="build" location="build" />
-    <property name="libfile" value="libbrainfuh.jar" />
-    <property name="exefile" value="brainfuh.jar" />
+    <property name="jarfile" value="brainfuh.jar" />
+    <property name="manifest" value="manifest.txt" />
 
     <target name="init">
         <tstamp/>
         <mkdir dir="${build}" />
+        <mkdir dir="${build}/class/" />
     </target>
 
     <target name="build" depends="init"
-        description="Compile source into ${libfile} and %{exefile} in ${build}.">
+        description="Compile source into a jar in ${build}.">
+        
+        <javac srcdir="${src}" destdir="${build}/class/" verbose="true" />
+        <manifest file="${build}/${manifest}">
+            <attribute name="Main-Class" 
+                       value="com.github.zachuorice.brainfuh.BrainfuhFrontend" />
+        </manifest>
+        <jar basedir="${build}/class/" destfile="${build}/${jarfile}" 
+             manifest="${build}/${manifest}" />
+    </target>
+    
+    <target name="execute" depends="build"
+            description="Execute the frontend.">
+    </target>
+    
+    <target name="test" depends="build"
+            description="There are no tests.">
     </target>
 
     <target name="clean">

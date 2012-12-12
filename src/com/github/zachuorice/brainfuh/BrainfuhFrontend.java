@@ -1,5 +1,5 @@
 /* Brainf*** interpreter frontend program code */
-import com.github.zachuorice.brainfuh.Interpreter;
+package com.github.zachuorice.brainfuh;
 
 public class BrainfuhFrontend
 {
