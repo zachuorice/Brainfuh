@@ -6,6 +6,7 @@
     <property name="build" location="build" />
     <property name="jarfile" value="brainfuh.jar" />
     <property name="manifest" value="manifest.txt" />
+    <property name="testfile" value="${src}/example.bf" />
 
     <target name="init">
         <tstamp/>
@@ -16,7 +17,8 @@
     <target name="build" depends="init"
         description="Compile source into a jar in ${build}.">
         
-        <javac srcdir="${src}" destdir="${build}/class/" verbose="true" />
+        <javac srcdir="${src}" destdir="${build}/class/" verbose="true"
+               includeantruntime="false" />
         <manifest file="${build}/${manifest}">
             <attribute name="Main-Class" 
                        value="com.github.zachuorice.brainfuh.BrainfuhFrontend" />
@@ -26,7 +28,10 @@
     </target>
     
     <target name="execute" depends="build"
-            description="Execute the frontend.">
+            description="Execute the frontend with the ${testfile}.">
+        <java jar="${build}/${jarfile}">
+            <arg file="${testfile}" />
+        </java>
     </target>
     
     <target name="test" depends="build"
