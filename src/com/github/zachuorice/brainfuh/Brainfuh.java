@@ -2,11 +2,15 @@
 package com.github.zachuorice.brainfuh;
 import com.github.zachuorice.brainfuh.*;
 import java.io.File;
+import java.io.IOException;
 
 public class Brainfuh
 {
-    static void executeFile(File code) 
+    static void executeFile(File code) throws IOException
     {
-        throw new UnsupportedOperationException("Not yet implemented");
+        if(!code.canRead() || !code.isFile())
+        {
+            throw new IOException();
+        }
     }
 }
