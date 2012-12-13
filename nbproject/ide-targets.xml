@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir=".." name="Brainfuh-IDE">
+    <import file="../build.xml"/>
+    <!-- TODO: edit the following target according to your needs -->
+    <!-- (more info: http://www.netbeans.org/kb/articles/freeform-config.html#debugj2se) -->
+    <target depends="build" description="Execute the frontend with the ${testfile}." name="debug-nb">
+        <nbjpdastart addressproperty="jpda.address" name="Brainfuh" transport="dt_socket"/>
+        <java fork="true" jar="${build}/${jarfile}">
+            <arg file="${testfile}"/>
+            <jvmarg value="-Xdebug"/>
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
+        </java>
+    </target>
+</project>

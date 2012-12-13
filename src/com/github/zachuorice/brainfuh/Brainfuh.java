@@ -20,11 +20,10 @@ package com.github.zachuorice.brainfuh;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import com.github.zachuorice.brainfuh.*;
 
 public class Brainfuh
 {
-    static void executeFile(File code) throws IOException
+    public static void executeFile(File code) throws IOException
     {
         if(!code.canRead() || !code.isFile())
             throw new IOException();
@@ -39,7 +38,7 @@ public class Brainfuh
         interpreter.execute();
     }
 
-    static void executeString(String code)
+    public static void executeString(String code)
     {
         Interpreter interpreter = new Interpreter();
         interpreter.feed(code);

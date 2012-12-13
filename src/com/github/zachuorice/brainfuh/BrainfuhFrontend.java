@@ -18,7 +18,6 @@
 /* Brainf*** interpreter frontend program code */
 package com.github.zachuorice.brainfuh;
 import java.io.File;
-import com.github.zachuorice.brainfuh.Brainfuh;
 
 public class BrainfuhFrontend
 {
@@ -59,6 +58,10 @@ public class BrainfuhFrontend
                 else if(!code.canRead())
                     exitWithMessage("Can't read file: " + args[0],
                                     ExitStatus.NOT_READABLE);
+            }
+            catch(InterpreterException e)
+            {
+                System.out.println(e.toString());
             }
         }
     }

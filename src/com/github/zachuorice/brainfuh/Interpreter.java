@@ -17,6 +17,7 @@
 
 /* A brainf*** interpreter in Java */
 package com.github.zachuorice.brainfuh;
+import com.github.zachuorice.brainfuh.InterpreterException.InterpreterError;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
@@ -47,6 +48,7 @@ class Instruction
 
         static Type match(char symbol)
         {
+            // TODO: Use a hashtable here
             for(Type sym : Type.values())
                 if(sym.symbol() == symbol)
                     return sym;
@@ -70,9 +72,9 @@ class Instruction
 
     Instruction(int line, int col, char instruction)
     {
-        this.line_no = line;
-        this.col_no = col;
-        this.type = Type.match(instruction);
+        line_no = line;
+        col_no = col;
+        type = Type.match(instruction);
     }
 }
 
@@ -91,6 +93,11 @@ public final class Interpreter
     private LinkedList<Instruction> instructions;
     private ListIterator<Instruction> instruction_pointer;
 
+    // Variables for data tracking during jumps
+    private boolean doing_zero_jmp;
+    private boolean doing_nz_jmp;
+    private Instruction jmp_origin;
+
     // Data segment variables
     private byte[] data;
     private int data_pointer;
@@ -104,25 +111,28 @@ public final class Interpreter
     /**
      * Reset the data segment and instruction pointer.
      */
-    void reset()
+    public void reset()
     {
-        this.data = new byte[DATA_SIZE];
-        this.data_pointer = 0;
-        this.instruction_pointer = (ListIterator<Instruction>) 
-                                    this.instructions.iterator();
+        data = new byte[DATA_SIZE];
+        data_pointer = 0;
+        instruction_pointer = (ListIterator<Instruction>) 
+                               instructions.iterator();
+        doing_zero_jmp = false;
+        doing_nz_jmp = false;
+        jmp_origin = null;
     }
 
     /**
      * Discard all fed instructions.
      */
-    void clear()
+    public void clear()
     {
-        this.instructions = new LinkedList<>();
-        this.line_no = 1;
-        this.col_no = 1;
+        instructions = new LinkedList<>();
+        line_no = 1;
+        col_no = 1;
     }
 
-    int line()
+    public int line()
     {
         int line;
         try
@@ -137,7 +147,7 @@ public final class Interpreter
         return line;
     }
 
-    int col()
+    public int col()
     {
         int col;
         try
@@ -156,24 +166,24 @@ public final class Interpreter
      * Feed a single instruction to the Interpreter, which will be stored
      * in the instruction segment and executed when execute() is called.
      */
-    void feed(char data) 
+    public void feed(char data) 
     {
         // Increment line or column number information
         if(data == '\n' || data == '\r')
         {
             // This conditional handles CLRF newlines.
-            if(this.col_no != 0)
-                this.line_no += 1;
-            this.col_no = 0;
+            if(col_no != 0)
+                line_no += 1;
+            col_no = 0;
         }
         else
-            this.col_no += 1;
+            col_no += 1;
 
         if(!Instruction.Type.ignored(data))
-            instructions.add(new Instruction(this.line_no, this.col_no, data));
+            instructions.add(new Instruction(line_no, col_no, data));
     }
 
-    void feed(String data)
+    public void feed(String data)
     {
         for(int index=0; index < data.length(); index++)
             feed(data.charAt(index));
@@ -183,19 +193,57 @@ public final class Interpreter
      * reset() the interpreter and execute the fed instructions from beginning
      * to end.
      */
-    void execute() throws DataOverflowException, DataUnderflowException
+    public void execute() throws InterpreterException
     {
         reset();
-        while(instruction_pointer.hasNext())
+        while(!programDone())
             step();
     }
 
-    void step() throws ProgramDoneException
+    public boolean programDone()
     {
-        throw new UnsupportedOperationException("Not implemented.");
+        return instruction_pointer.hasNext();
     }
 
-    Interpreter()
+    public void step() throws InterpreterException
+    {
+        if(!instruction_pointer.hasNext())
+            throw new InterpreterException(InterpreterError.IP_OVERFLOW, 
+                                           line_no, col_no);
+        Instruction instruction;
+        if(doing_nz_jmp)
+        {
+            if(!instruction_pointer.hasPrevious())
+                throw new InterpreterException(InterpreterError.IP_UNDERFLOW,
+                                               jmp_origin.line(), 
+                                               jmp_origin.col());
+            instruction = instruction_pointer.previous();
+        }
+        else
+            instruction = instruction_pointer.next();
+
+        switch(instruction.type())
+        {
+            case INC_DP:
+                break;
+            case DEC_DP:
+                break;
+            case INC_DATA:
+                break;
+            case DEC_DATA:
+                break;
+            case OUT_DATA:
+                break;
+            case GET_DATA:
+                break;
+            case ZERO_JMP:
+                break;
+            case NZ_JMP:
+                break;
+        }
+    }
+
+    public Interpreter()
     {
         clear();
         reset();
