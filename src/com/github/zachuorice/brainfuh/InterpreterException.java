@@ -26,7 +26,8 @@ public class InterpreterException extends RuntimeException
         IP_OVERFLOW,
         IP_UNDERFLOW,
         DP_OVERFLOW,
-        DP_UNDERFLOW;
+        DP_UNDERFLOW,
+        INPUT_NOT_AVAILABLE;
     }
 
     private InterpreterError errorType;

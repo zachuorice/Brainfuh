@@ -18,6 +18,7 @@
 /* A brainf*** interpreter in Java */
 package com.github.zachuorice.brainfuh;
 import com.github.zachuorice.brainfuh.InterpreterException.InterpreterError;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
@@ -202,7 +203,7 @@ public final class Interpreter
 
     public boolean programDone()
     {
-        return instruction_pointer.hasNext();
+        return !instruction_pointer.hasNext();
     }
 
     public void step() throws InterpreterException
@@ -225,20 +226,47 @@ public final class Interpreter
         switch(instruction.type())
         {
             case INC_DP:
+                data_pointer += 1;
+                if(data_pointer >= DATA_SIZE)
+                    throw new InterpreterException(InterpreterError.DP_OVERFLOW,
+                                                   instruction.line(),
+                                                   instruction.col());
                 break;
             case DEC_DP:
+                data_pointer -= 1;
+                if(data_pointer < 0)
+                    throw new InterpreterException(InterpreterError.DP_UNDERFLOW,
+                                                   instruction.line(),
+                                                   instruction.col());
                 break;
             case INC_DATA:
+                data[data_pointer] += 1;
                 break;
             case DEC_DATA:
+                data[data_pointer] -= 1;
                 break;
             case OUT_DATA:
+                System.out.print((char ) data[data_pointer]);
                 break;
             case GET_DATA:
-                break;
+                try
+                {
+                    int input = System.in.read();
+                    if(input != -1)
+                        data[data_pointer] = (byte ) input;
+                }
+                catch(IOException e)
+                {
+                    throw new InterpreterException(InterpreterError.
+                                                   INPUT_NOT_AVAILABLE,
+                                                   instruction.line(),
+                                                   instruction.col());
+                }
             case ZERO_JMP:
                 break;
             case NZ_JMP:
+                break;
+            default:
                 break;
         }
     }
