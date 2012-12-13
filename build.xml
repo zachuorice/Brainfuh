@@ -18,7 +18,7 @@
         description="Compile source into a jar in ${build}.">
         
         <javac srcdir="${src}" destdir="${build}/class/" verbose="true"
-               includeantruntime="false" />
+               includeantruntime="false" debug="true" />
         <manifest file="${build}/${manifest}">
             <attribute name="Main-Class" 
                        value="com.github.zachuorice.brainfuh.BrainfuhFrontend" />

@@ -32,7 +32,10 @@ public class Brainfuh
         int data = code_reader.read();
         Interpreter interpreter = new Interpreter();
         while(data != -1)
+        {
             interpreter.feed((char ) data);
+            data = code_reader.read();
+        }
         interpreter.execute();
     }
 
