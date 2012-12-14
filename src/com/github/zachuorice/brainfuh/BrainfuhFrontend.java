@@ -18,12 +18,15 @@
 /* Brainf*** interpreter frontend program code */
 package com.github.zachuorice.brainfuh;
 import java.io.File;
+import java.io.IOException;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class BrainfuhFrontend
 {
     private enum ExitStatus
     {
-        ARGS_EMPTY(1), BAD_FILENAME(2), NOT_A_FILE(3), NOT_READABLE(4);
+        ARGS_EMPTY(1), IO_FAILURE(2), FILE_NOT_FOUND(3);
         
         ExitStatus(int error) {this.error = error;}
         private int error;
@@ -39,7 +42,8 @@ public class BrainfuhFrontend
     public static void main(String[] args)
     {
         if(args.length <= 0)
-            exitWithMessage("Args: filename_0 ... [filename_n]", ExitStatus.ARGS_EMPTY);
+            exitWithMessage("Args: filename_0 ... [filename_n]", 
+                            ExitStatus.ARGS_EMPTY);
         else
         {
             for(int i=0; i < args.length; i++)
@@ -49,17 +53,15 @@ public class BrainfuhFrontend
                 {
                     Brainfuh.executeFile(code);
                 }
-                catch(java.io.IOException e)
+                catch(FileNotFoundException e)
                 {
-                    if(!code.exists())
-                        exitWithMessage("No file called: " + args[0],
-                                        ExitStatus.BAD_FILENAME);
-                    else if(!code.isFile())
-                        exitWithMessage("Not a file: " + args[0],
-                                        ExitStatus.NOT_A_FILE);
-                    else if(!code.canRead())
-                        exitWithMessage("Can't read file: " + args[0],
-                                        ExitStatus.NOT_READABLE);
+                    exitWithMessage("File not found: " + code.getAbsolutePath(),
+                                    ExitStatus.FILE_NOT_FOUND);
+                }
+                catch(IOException e)
+                {
+                    exitWithMessage("Unable to read: " + code.getAbsolutePath(),
+                                    ExitStatus.IO_FAILURE);
                 }
                 catch(InterpreterException e)
                 {

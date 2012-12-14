@@ -20,13 +20,13 @@ package com.github.zachuorice.brainfuh;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.FileNotFoundException;
 
 public class Brainfuh
 {
-    public static void executeFile(File code) throws IOException
+    public static void executeFile(File code) throws FileNotFoundException,
+                                                     IOException
     {
-        if(!code.canRead() || !code.isFile())
-            throw new IOException();
         FileReader code_reader = new FileReader(code);
         int data = code_reader.read();
         Interpreter interpreter = new Interpreter();
