@@ -20,8 +20,6 @@ package com.github.zachuorice.brainfuh;
 import com.github.zachuorice.brainfuh.InterpreterException.InterpreterError;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.ListIterator;
-import java.util.ArrayDeque;
 import java.util.NoSuchElementException;
 
 /* 
@@ -72,11 +70,25 @@ class Instruction
     private Type type;
     public Type type() {return this.type;}
 
+    private int jmp;
+
+    /**
+     * If this is an instruction that jumps then return a "pointer"
+     * to the instruction to jump to, otherwise returns -1.
+     */
+    public int jmp() {return this.jmp;}
+
+    /**
+     * Set the "pointer" to jump to.
+     */
+    public void jmp(int pointer) {this.jmp = pointer;}
+
     Instruction(int line, int col, char instruction)
     {
         line_no = line;
         col_no = col;
         type = Type.match(instruction);
+        jmp = -1;
     }
 }
 
@@ -94,9 +106,6 @@ public final class Interpreter
     // Instruction segment variables
     private ArrayList<Instruction> instructions;
     private int instruction_pointer;
-
-    // The 'frames' stack is used for jumps.
-    private ArrayDeque<Integer> jmp_frames;
 
     // Data segment variables
     private byte[] data;
@@ -173,9 +182,32 @@ public final class Interpreter
         }
         else
             col_no += 1;
-
+        Instruction instruction;
         if(!Instruction.Type.ignored(data))
+        {
             instructions.add(new Instruction(line_no, col_no, data));
+
+            // Setup instruction jump(if necessary)
+            int origin = instructions.size() - 1;
+            instruction = instructions.get(origin);
+            if(instruction.type() == Instruction.Type.NZ_JMP)
+            {
+                int index = origin;
+                Instruction other;
+                while(index > 0)
+                {
+                    index -= 1;
+                    other = instructions.get(index);
+                    if(other.type() == Instruction.Type.ZERO_JMP &&
+                        other.jmp() == -1)
+                    {
+                        other.jmp(origin);
+                        instruction.jmp(index);
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     public void feed(String data)
@@ -200,12 +232,27 @@ public final class Interpreter
         return instruction_pointer >= instructions.size();
     }
 
+    public void doJmp()
+    {
+        Instruction instruction = instructions.get(instruction_pointer);
+        if(instruction.jmp() == -1)
+            throw new InterpreterException(InterpreterError.
+                                            UNMATCHED_BRACKET, 
+                                           instruction.line(), 
+                                           instruction.col());
+        else
+            instruction_pointer = instruction.jmp();
+    }
+
     public void step() throws InterpreterException
     {
         if(programDone())
             throw new InterpreterException(InterpreterError.IP_OVERFLOW, 
                                            line_no, col_no);
+        boolean jumped = false;
         Instruction instruction = instructions.get(instruction_pointer);
+        int line = instruction.line();
+        int col = instruction.col();
 
         switch(instruction.type())
         {
@@ -213,15 +260,13 @@ public final class Interpreter
                 data_pointer += 1;
                 if(data_pointer >= DATA_SIZE)
                     throw new InterpreterException(InterpreterError.DP_OVERFLOW,
-                                                   instruction.line(),
-                                                   instruction.col());
+                                                   line, col);
                 break;
             case DEC_DP:
                 data_pointer -= 1;
                 if(data_pointer < 0)
                     throw new InterpreterException(InterpreterError.DP_UNDERFLOW,
-                                                   instruction.line(),
-                                                   instruction.col());
+                                                   line, col);
                 break;
             case INC_DATA:
                 data[data_pointer] += 1;
@@ -243,18 +288,28 @@ public final class Interpreter
                 {
                     throw new InterpreterException(InterpreterError.
                                                     INPUT_NOT_AVAILABLE,
-                                                   instruction.line(),
-                                                   instruction.col());
+                                                   line, col);
                 }
                 break;
             case ZERO_JMP:
+                if(data[data_pointer] == 0)
+                {
+                    doJmp();
+                    jumped = true;
+                }
                 break;
             case NZ_JMP:
+                if(data[data_pointer] != 0)
+                {
+                    doJmp();
+                    jumped = true;
+                }
                 break;
             default:
                 break;
         }
-        instruction_pointer += 1;
+        if(!jumped)
+            instruction_pointer += 1;
     }
 
     public Interpreter()

@@ -7,7 +7,7 @@
     <property name="examples" location="examples" />
     <property name="jarfile" value="brainfuh.jar" />
     <property name="manifest" value="manifest.txt" />
-    <property name="testfile" value="${examples}/four_points.bf" />
+    <property name="testfile" value="${examples}/loop_print.bf" />
 
     <target name="init">
         <tstamp/>
