@@ -22,12 +22,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
-/* 
+/** 
  * This object represents a single instruction 
  * in the Brainf*** instructon set.
+ * @author Zachary Richey
  */
 class Instruction
 {
+    /**
+     * Represents the type of the Instruction.
+     */
     public enum Type
     {
         IGNORED,
@@ -46,6 +50,11 @@ class Instruction
         private int symbol;
         public int symbol() {return this.symbol;}
 
+        /**
+         * Match a given symbol to a type in Type.
+         * @param symbol The symbol to match.
+         * @return A Type or Type.IGNORED.
+         */
         static Type match(char symbol)
         {
             // TODO: Use a hashtable here
@@ -55,6 +64,11 @@ class Instruction
             return IGNORED;
         }
 
+        /**
+         * Test whether a given symbol is ignored in the instruction set.
+         * @param symbol The symbol to test.
+         * @return true if the symbol is ignored, false otherwise.
+         */
         static boolean ignored(char symbol)
         {
             return Type.match(symbol) == Type.IGNORED;
@@ -68,6 +82,11 @@ class Instruction
     public int col() {return this.col_no;}
 
     private Type type;
+
+    /**
+     * Returns the Type of the instruction.
+     * @return Type
+     */
     public Type type() {return this.type;}
 
     private int jmp;
@@ -94,6 +113,7 @@ class Instruction
 
 /**
  * An interpreter for Brainf*** commands. 
+ * @author Zachary Richey
  */
 public final class Interpreter
 {
@@ -137,6 +157,9 @@ public final class Interpreter
         col_no = 1;
     }
 
+    /**
+     * @return Returns the current line the program is at in its execution or -1.
+     */
     public int line()
     {
         int line;
@@ -151,6 +174,9 @@ public final class Interpreter
         return line;
     }
 
+    /**
+     * @return Return the current column the program is at in its execution or -1.
+     */
     public int col()
     {
         int col;
@@ -168,6 +194,7 @@ public final class Interpreter
     /** 
      * Feed a single instruction to the Interpreter, which will be stored
      * in the instruction segment and executed when execute() is called.
+     * @param data The symbol.
      */
     public void feed(char data) 
     {
@@ -209,6 +236,10 @@ public final class Interpreter
         }
     }
 
+    /**
+     * Feed a String of data to be stored for execution.
+     * @param data The string.
+     */
     public void feed(String data)
     {
         for(int index=0; index < data.length(); index++)
@@ -231,7 +262,7 @@ public final class Interpreter
         return instruction_pointer >= instructions.size();
     }
 
-    public void doJmp()
+    private void doJmp()
     {
         Instruction instruction = instructions.get(instruction_pointer);
         if(instruction.jmp() == -1)
@@ -243,6 +274,10 @@ public final class Interpreter
             instruction_pointer = instruction.jmp();
     }
 
+    /**
+     * Execute a single instruction from the fed instructions.
+     * @throws InterpreterException Thrown if an error is encountered in the instructions.
+     */
     public void step() throws InterpreterException
     {
         if(programDone())
@@ -311,6 +346,9 @@ public final class Interpreter
             instruction_pointer += 1;
     }
 
+    /**
+     * Create an instance of the interpreter.
+     */
     public Interpreter()
     {
         clear();

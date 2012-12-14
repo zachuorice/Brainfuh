@@ -22,6 +22,11 @@ import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+/**
+ * A frontend that uses the library to execute one or more scripts passed
+ * as command line arguments.
+ * @author Zachary Richey
+ */
 public class BrainfuhFrontend
 {
     private enum ExitStatus

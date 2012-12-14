@@ -18,16 +18,34 @@ package com.github.zachuorice.brainfuh;
 
 /**
  * Represents an exception during the execution of a Brainf*** program. 
+ * @author Zachary Richey
  */
 public class InterpreterException extends RuntimeException 
 {
     public enum InterpreterError
     {
+        /**
+         * A instruction pointer overflow occurs when a program
+         * attempts to step beyond the end of the loaded instructions.
+         */
         IP_OVERFLOW,
-        IP_UNDERFLOW,
+
+        /**
+         * An data pointer overflow occurs when the data pointer is incremented
+         * beyond the end of the data segment.
+         */
         DP_OVERFLOW,
+
+        /**
+         * An data pointer underflow occurs when the data pointer is
+         * decremented to before the beginning of the data segment.
+         */
         DP_UNDERFLOW,
         UNMATCHED_BRACKET,
+
+        /**
+         * Occurs if there is an exception reading input from System.in.
+         */
         INPUT_NOT_AVAILABLE;
     }
 

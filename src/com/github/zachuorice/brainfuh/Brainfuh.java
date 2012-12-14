@@ -22,8 +22,19 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 
+/**
+ * A collection of static methods to make using this package to execute
+ * Brainf*** scripts simple.
+ * @author Zachary Richey
+ */
 public class Brainfuh
 {
+    /**
+     * Attempt to read the given File and execute it with the Interpreter.
+     * @param code The File to read.
+     * @throws FileNotFoundException
+     * @throws IOException 
+     */
     public static void executeFile(File code) throws FileNotFoundException,
                                                      IOException
     {
@@ -38,6 +49,10 @@ public class Brainfuh
         interpreter.execute();
     }
 
+    /**
+     * Attempt to execute the given String with the Interpreter.
+     * @param code The code.
+     */
     public static void executeString(String code)
     {
         Interpreter interpreter = new Interpreter();
