@@ -171,16 +171,16 @@ public final class Interpreter
      */
     public void feed(char data) 
     {
-        // Increment line or column number information
+        // Increment line or column number counter
         if(data == '\n' || data == '\r')
         {
-            // This conditional handles CLRF newlines.
-            if(col_no != 0)
+            if(data == '\n')
                 line_no += 1;
             col_no = 0;
         }
         else
             col_no += 1;
+
         Instruction instruction;
         if(!Instruction.Type.ignored(data))
         {
