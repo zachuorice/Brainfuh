@@ -125,7 +125,6 @@ public final class Interpreter
         data = new byte[DATA_SIZE];
         data_pointer = 0;
         instruction_pointer = 0;
-        jmp_frames = new ArrayDeque<>();
     }
 
     /**

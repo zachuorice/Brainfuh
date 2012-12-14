@@ -65,6 +65,7 @@ public class BrainfuhFrontend
                 {
                     System.out.println(e.toString());
                 }
+                System.out.println();
             }
         }
     }
