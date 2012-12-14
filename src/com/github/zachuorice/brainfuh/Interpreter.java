@@ -19,8 +19,9 @@
 package com.github.zachuorice.brainfuh;
 import com.github.zachuorice.brainfuh.InterpreterException.InterpreterError;
 import java.io.IOException;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.ListIterator;
+import java.util.ArrayDeque;
 import java.util.NoSuchElementException;
 
 /* 
@@ -91,13 +92,11 @@ public final class Interpreter
     public static final int DATA_SIZE = 30000;
 
     // Instruction segment variables
-    private LinkedList<Instruction> instructions;
-    private ListIterator<Instruction> instruction_pointer;
+    private ArrayList<Instruction> instructions;
+    private int instruction_pointer;
 
-    // Variables for data tracking during jumps
-    private boolean doing_zero_jmp;
-    private boolean doing_nz_jmp;
-    private Instruction jmp_origin;
+    // The 'frames' stack is used for jumps.
+    private ArrayDeque<Integer> jmp_frames;
 
     // Data segment variables
     private byte[] data;
@@ -116,11 +115,8 @@ public final class Interpreter
     {
         data = new byte[DATA_SIZE];
         data_pointer = 0;
-        instruction_pointer = (ListIterator<Instruction>) 
-                               instructions.iterator();
-        doing_zero_jmp = false;
-        doing_nz_jmp = false;
-        jmp_origin = null;
+        instruction_pointer = 0;
+        jmp_frames = new ArrayDeque<>();
     }
 
     /**
@@ -128,7 +124,7 @@ public final class Interpreter
      */
     public void clear()
     {
-        instructions = new LinkedList<>();
+        instructions = new ArrayList<>();
         line_no = 1;
         col_no = 1;
     }
@@ -138,8 +134,7 @@ public final class Interpreter
         int line;
         try
         {
-            line = instruction_pointer.next().line();
-            instruction_pointer.previous();
+            line = instructions.get(instruction_pointer).line();
         }
         catch(NoSuchElementException e)
         {
@@ -153,8 +148,7 @@ public final class Interpreter
         int col;
         try
         {
-            col = instruction_pointer.next().col();
-            instruction_pointer.previous();
+            col = instructions.get(instruction_pointer).col();
         }
         catch(NoSuchElementException e)
         {
@@ -203,25 +197,15 @@ public final class Interpreter
 
     public boolean programDone()
     {
-        return !instruction_pointer.hasNext();
+        return instruction_pointer >= instructions.size();
     }
 
     public void step() throws InterpreterException
     {
-        if(!instruction_pointer.hasNext())
+        if(programDone())
             throw new InterpreterException(InterpreterError.IP_OVERFLOW, 
                                            line_no, col_no);
-        Instruction instruction;
-        if(doing_nz_jmp)
-        {
-            if(!instruction_pointer.hasPrevious())
-                throw new InterpreterException(InterpreterError.IP_UNDERFLOW,
-                                               jmp_origin.line(), 
-                                               jmp_origin.col());
-            instruction = instruction_pointer.previous();
-        }
-        else
-            instruction = instruction_pointer.next();
+        Instruction instruction = instructions.get(instruction_pointer);
 
         switch(instruction.type())
         {
@@ -258,10 +242,11 @@ public final class Interpreter
                 catch(IOException e)
                 {
                     throw new InterpreterException(InterpreterError.
-                                                   INPUT_NOT_AVAILABLE,
+                                                    INPUT_NOT_AVAILABLE,
                                                    instruction.line(),
                                                    instruction.col());
                 }
+                break;
             case ZERO_JMP:
                 break;
             case NZ_JMP:
@@ -269,6 +254,7 @@ public final class Interpreter
             default:
                 break;
         }
+        instruction_pointer += 1;
     }
 
     public Interpreter()

@@ -27,6 +27,7 @@ public class InterpreterException extends RuntimeException
         IP_UNDERFLOW,
         DP_OVERFLOW,
         DP_UNDERFLOW,
+        UNMATCHED_BRACKET,
         INPUT_NOT_AVAILABLE;
     }
 
@@ -48,7 +49,6 @@ public class InterpreterException extends RuntimeException
 
     public String toString()
     {
-        return String.format("%1s:%2s: %3s", errorType.toString(), 
-                             line_no, col_no);
+        return String.format("%s:%s: %s", line_no, col_no, errorType);
     }
 }

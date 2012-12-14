@@ -4,9 +4,10 @@
     </description>
     <property name="src" location="src" />
     <property name="build" location="build" />
+    <property name="examples" location="examples" />
     <property name="jarfile" value="brainfuh.jar" />
     <property name="manifest" value="manifest.txt" />
-    <property name="testfile" value="${src}/example.bf" />
+    <property name="testfile" value="${examples}/four_points.bf" />
 
     <target name="init">
         <tstamp/>

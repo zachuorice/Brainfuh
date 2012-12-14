@@ -39,32 +39,33 @@ public class BrainfuhFrontend
     public static void main(String[] args)
     {
         if(args.length <= 0)
-            exitWithMessage("Args: code_filename", ExitStatus.ARGS_EMPTY);
+            exitWithMessage("Args: filename_0 ... [filename_n]", ExitStatus.ARGS_EMPTY);
         else
         {
-            File code = new File(args[0]);
-            try
+            for(int i=0; i < args.length; i++)
             {
-                Brainfuh.executeFile(code);
+                File code = new File(args[i]);
+                try
+                {
+                    Brainfuh.executeFile(code);
+                }
+                catch(java.io.IOException e)
+                {
+                    if(!code.exists())
+                        exitWithMessage("No file called: " + args[0],
+                                        ExitStatus.BAD_FILENAME);
+                    else if(!code.isFile())
+                        exitWithMessage("Not a file: " + args[0],
+                                        ExitStatus.NOT_A_FILE);
+                    else if(!code.canRead())
+                        exitWithMessage("Can't read file: " + args[0],
+                                        ExitStatus.NOT_READABLE);
+                }
+                catch(InterpreterException e)
+                {
+                    System.out.println(e.toString());
+                }
             }
-            catch(java.io.IOException e)
-            {
-                if(!code.exists())
-                    exitWithMessage("No file called: " + args[0],
-                                    ExitStatus.BAD_FILENAME);
-                else if(!code.isFile())
-                    exitWithMessage("Not a file: " + args[0],
-                                    ExitStatus.NOT_A_FILE);
-                else if(!code.canRead())
-                    exitWithMessage("Can't read file: " + args[0],
-                                    ExitStatus.NOT_READABLE);
-            }
-            catch(InterpreterException e)
-            {
-                System.out.println(e.toString());
-            }
-            System.out.println();
-            System.out.println("DONE");
         }
     }
 }
