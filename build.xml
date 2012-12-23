@@ -13,6 +13,7 @@
         <tstamp/>
         <mkdir dir="${build}" />
         <mkdir dir="${build}/class/" />
+        <mkdir dir="${build}/doc/" />
     </target>
 
     <target name="build" depends="init"
@@ -33,6 +34,11 @@
         <java jar="${build}/${jarfile}">
             <arg file="${testfile}" />
         </java>
+    </target>
+
+    <target name="doc" description="Generate JavaDocs">
+        <javadoc sourcepath="${src}" destdir="${build}/doc/" >
+        </javadoc>
     </target>
     
     <target name="test" depends="build"
